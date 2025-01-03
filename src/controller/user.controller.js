@@ -5,17 +5,19 @@ import asyncHandler from "../utils/asyncHandler.js";
 import jwt from "jsonwebtoken";
 
 
+// generate Access And Referesh Tokens
 const generateAccessAndRefereshTokens =  async(userId) => {
     
     try {
         
         const user = await UserModel.findById(userId)
 
-        const accessToken = user.generateAccessToken()        
+        const accessToken = user.generateAccessToken()    // user.generateAccessToken()  get user model      
         const refreshToken = user.generateRefreshToken()
 
-        user.refresh_token = refreshToken ;
-        await user.save({ validateBeforeSave: false })
+        user.refresh_token = refreshToken ; // insert user refreshToken
+
+        await user.save({ validateBeforeSave: false }) 
 
         return {accessToken, refreshToken};
 
@@ -48,7 +50,7 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Email already exists");
     }
 
-    
+    // save use info data base 
     const user = await UserModel.create({
         firstname,
         lastname,
@@ -72,24 +74,27 @@ const registerUser = asyncHandler(async (req, res) => {
 // user login
 const loginUser = asyncHandler(async (req, res) => {
     const { email, password } = req.body;
+    // check  Email
     if (!email) {
         throw new ApiError(404, "Email is required");
     }
 
+    // find user data base 
     const user = await UserModel.findOne({email});
-    
+    // not found user 
     if (!user) {
         throw new ApiError(404, "Invalid email ");
     }
 
-    const matchPassword =  await user.isPasswordCorrect(password) // check password
+    // match user send password === data base password  
+    const matchPassword =  await user.isPasswordCorrect(password) // check password  // userModel isPasswordCorrect
     if (!matchPassword) {
         throw new ApiError(404, "Invalid user credentials");
     }
 
-
+    // crete accessToken, refreshToken
     const  {accessToken, refreshToken} = await generateAccessAndRefereshTokens(user._id)
-
+    // find user data base 
     const loginUser = await UserModel.findById(user._id)
 
     // set token in cookie and only
@@ -103,6 +108,7 @@ const loginUser = asyncHandler(async (req, res) => {
 
 const logoutUser = asyncHandler(async (req,res) => {
 
+    //  get verifyJwt ->  req.user._id  // logout refresh_token 
     await UserModel.findByIdAndUpdate(req.user._id ,
         {
             $set: {
@@ -124,6 +130,8 @@ const logoutUser = asyncHandler(async (req,res) => {
 })
 
 
+// refresh Access Token
+
 const refreshAccessToken = asyncHandler(async (req,res) => {
 
     try {
@@ -139,6 +147,7 @@ const refreshAccessToken = asyncHandler(async (req,res) => {
             throw new ApiError( 401 ,"user not found")
         }
     
+        // incomingRefreshToken !=== user.refresh_token
         if (incomingRefreshToken !== user.refresh_token) {
             throw new ApiError( 401 ,"refresh token is invalid")
         }
