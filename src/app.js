@@ -21,10 +21,12 @@ app.use(express.static('public'));
 
 // import routes
 import userRoutes from './router/user.route.js';
+import imageRoutes from './router/uploadeAllImage.router.js';
 
 
 
 // route declaration 
 app.use('/api/v1/user' , userRoutes);
+app.use('/api/v1/all' , imageRoutes);
 
 export {app}
