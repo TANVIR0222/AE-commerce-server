@@ -327,6 +327,13 @@ const verifyForgotPasswordOTP = asyncHandler(async (req, res)=>{
         return res.status(400).json(new ApiError(400, "invalid otp"));
     }
 
+    const updateOtp = await UserModel.findByIdAndUpdate({_id : user._id} ,{$set : 
+        {
+            forgot_password_otp : null,
+            forgot_password_expiry : null
+        }
+    }, {new : true});
+
 
     res
     .status(200)
