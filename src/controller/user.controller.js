@@ -5,6 +5,7 @@ import asyncHandler from "../utils/asyncHandler.js";
 import jwt from "jsonwebtoken";
 import verifyEmailTemplate from "../utils/verifyEmailTemplate.js";
 import sendEmail from "../utils/sendEmail.js";
+import imageUploadeCloudinary from "../utils/cloudinary.js";
 // import sendEmail from "../utils/sendEmail.js";
 
 
@@ -213,4 +214,26 @@ const refreshAccessToken = asyncHandler(async (req,res) => {
 
 })
 
-export { registerUser  , loginUser  , logoutUser , refreshAccessToken , verifyEmail};
+
+// user image uploade 
+const updateImage  = asyncHandler(async (req,res) => {
+    
+    try {
+        const {id} = req.params ;
+        const {image} = req.body ;
+    
+        const user = await UserModel.findById(id);
+        if(!user) {
+            throw new ApiError( 400 ,"user not found")
+        }
+    
+        const update = await UserModel.findByIdAndUpdate( { _id: id} , { $set: { avatar : image } } , { new: true } );
+        res.status(200).json(new ApiResponse(200, update, "image updated successfully"));
+    } catch (error) {
+        throw new ApiError( 500 , error?.message || "image not updated")
+    }
+
+    
+})
+
+export { registerUser  , loginUser  , logoutUser , refreshAccessToken , verifyEmail , updateImage  } ;  // export all the functions  // export all the functions  // export
