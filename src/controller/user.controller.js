@@ -6,6 +6,8 @@ import jwt from "jsonwebtoken";
 import verifyEmailTemplate from "../utils/verifyEmailTemplate.js";
 import sendEmail from "../utils/sendEmail.js";
 import bcrypt from "bcryptjs";
+import { generateOTP } from "../utils/generateOTP.js";
+import forgotPasswordTemplate from "../utils/forgotPasswordTemplate.js";
 
 
 // generate Access And Referesh Tokens
@@ -247,7 +249,7 @@ const updateUseDeatils = asyncHandler(async(req,res) => {
 
 })
 
-
+// get user details
 const getSingleUser = asyncHandler(async (req,res) => {
    try {
      const {id} = req.params ;
@@ -265,4 +267,45 @@ const getSingleUser = asyncHandler(async (req,res) => {
 
 })
 
-export { registerUser  , loginUser  , logoutUser , refreshAccessToken , verifyEmail , updateUseDeatils  , getSingleUser} ;  // export all the functions  // export all the functions  // export
+
+const forgotPassword = asyncHandler(async (req, res) => {
+    const {email} = req.body;
+    if (!email) {
+        throw new ApiError(400, "email is required");
+    }
+    const user = await UserModel.findOne({email : email});
+    if (!user) {
+        throw new ApiError(404, "user not found");
+    }
+
+    const otp = generateOTP()
+    // Expire in 15 minutes
+    const expiryDate = new Date(Date.now() + 15 * 60 * 1000);
+
+
+    //  Update forgot_password_otp and  forgot_password_expiry
+    const update = await UserModel.findByIdAndUpdate({_id : user._id} , 
+        {$set : {
+            forgot_password_otp : otp,
+            forgot_password_expiry : new Date(expiryDate).toISOString()
+        }
+    }, {new : true});
+
+    await sendEmail({
+        sendTo: email,
+        subject: "Verify email from binkeyit",
+        html: forgotPasswordTemplate({
+            name: `${user.firstname} ${user.lastname}`,
+            otp: otp,
+        }),
+    });
+    
+    res.status(200).json(new ApiResponse(200,  "check your email for otp"));
+
+
+})
+
+
+
+
+export { registerUser  , loginUser  , logoutUser , refreshAccessToken , verifyEmail , updateUseDeatils  , getSingleUser , forgotPassword} ;  // export all the functions  // export all the functions  // export
