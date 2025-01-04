@@ -305,7 +305,35 @@ const forgotPassword = asyncHandler(async (req, res) => {
 
 })
 
+const verifyForgotPasswordOTP = asyncHandler(async (req, res)=>{
+
+    const {email , otp} = req.body;
+    
+    if (!email || !otp) {
+        throw new ApiError(400, "email and otp are required");
+    }
+    
+    const user = await UserModel.findOne({email : email});
+    if (!user) {
+        throw new ApiError(404, "user not found");
+    }
+
+    //  Check if otp is valid
+    if(user.forgot_password_expiry < new Date()){
+        return res.status(400).json(new ApiError(400, "otp is expired"));
+    }
+    
+    if(user.forgot_password_otp !== otp){
+        return res.status(400).json(new ApiError(400, "invalid otp"));
+    }
 
 
+    res
+    .status(200)
+    .json(new ApiResponse(200, "otp is valid"));
+ 
 
-export { registerUser  , loginUser  , logoutUser , refreshAccessToken , verifyEmail , updateUseDeatils  , getSingleUser , forgotPassword} ;  // export all the functions  // export all the functions  // export
+})
+
+
+export {verifyForgotPasswordOTP ,registerUser  , loginUser  , logoutUser , refreshAccessToken , verifyEmail , updateUseDeatils  , getSingleUser , forgotPassword} ;  // export all the functions  // export all the functions  // export
