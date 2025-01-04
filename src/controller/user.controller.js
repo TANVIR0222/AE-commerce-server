@@ -3,6 +3,9 @@ import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import jwt from "jsonwebtoken";
+import verifyEmailTemplate from "../utils/verifyEmailTemplate.js";
+import sendEmail from "../utils/sendEmail.js";
+// import sendEmail from "../utils/sendEmail.js";
 
 
 // generate Access And Referesh Tokens
@@ -59,6 +62,19 @@ const registerUser = asyncHandler(async (req, res) => {
     });
     
 
+
+    const VerifyEmailUrl = `${process.env.FRONTEND_URL}/verify-email?code=${user?._id}`;
+
+    await sendEmail({
+      sendTo: email,
+      subject: "Verify email from binkeyit",
+      html: verifyEmailTemplate({
+        name: `${firstname} ${lastname}`,
+        url: VerifyEmailUrl,
+      }),
+    });
+
+
     const createUser = await UserModel.findById(user._id) //.select(" -password");
 
     if (!createUser) {
@@ -70,6 +86,36 @@ const registerUser = asyncHandler(async (req, res) => {
 });
 
 
+// verifyEmail 
+const verifyEmail = asyncHandler(async(req,res) =>{
+
+    try {
+
+        //  code is id of user
+        const {code} = req.body;
+        //  find user by id
+        const user = await UserModel.findById({_id: code})
+
+        if (!user) {
+            throw new ApiError(401 , "user not found")
+        }
+        
+        //  update user email verified
+        const userEmailVerify = await UserModel.updateOne({_id : code} , {verify_email : true});
+        if(!userEmailVerify) {
+            throw new ApiError(401 , "user email not verified")
+        }
+
+        res
+        .status(200)
+        .json(new ApiResponse(200 , {message : "email verified"} , "email verified"))
+
+    } catch (error) {
+        throw new ApiError(500, error?.message || "email verification failed")
+        
+    }
+
+})
 
 // user login
 const loginUser = asyncHandler(async (req, res) => {
@@ -167,4 +213,4 @@ const refreshAccessToken = asyncHandler(async (req,res) => {
 
 })
 
-export { registerUser  , loginUser  , logoutUser , refreshAccessToken};
+export { registerUser  , loginUser  , logoutUser , refreshAccessToken , verifyEmail};
