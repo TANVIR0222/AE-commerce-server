@@ -336,4 +336,26 @@ const verifyForgotPasswordOTP = asyncHandler(async (req, res)=>{
 })
 
 
-export {verifyForgotPasswordOTP ,registerUser  , loginUser  , logoutUser , refreshAccessToken , verifyEmail , updateUseDeatils  , getSingleUser , forgotPassword} ;  // export all the functions  // export all the functions  // export
+const resetPassword = asyncHandler(async (req, res) => {
+    const { email, password } = req.body;
+
+if (!email || !password) {
+    throw new ApiError(400, "Email and password are required");
+}
+
+const user = await UserModel.findOne({ email });
+if (!user) {
+    throw new ApiError(404, "User not found");
+}
+
+// Assign plain password (hook will hash it)
+user.password = password;
+await user.save();
+
+res.status(200).json(new ApiResponse(200, "Password is updated successfully"));
+
+
+})
+
+
+export {resetPassword ,verifyForgotPasswordOTP ,registerUser  , loginUser  , logoutUser , refreshAccessToken , verifyEmail , updateUseDeatils  , getSingleUser , forgotPassword} ;  // export all the functions  // export all the functions  // export
