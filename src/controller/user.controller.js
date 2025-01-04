@@ -5,8 +5,7 @@ import asyncHandler from "../utils/asyncHandler.js";
 import jwt from "jsonwebtoken";
 import verifyEmailTemplate from "../utils/verifyEmailTemplate.js";
 import sendEmail from "../utils/sendEmail.js";
-import imageUploadeCloudinary from "../utils/cloudinary.js";
-// import sendEmail from "../utils/sendEmail.js";
+import bcrypt from "bcryptjs";
 
 
 // generate Access And Referesh Tokens
@@ -215,25 +214,36 @@ const refreshAccessToken = asyncHandler(async (req,res) => {
 })
 
 
-// user image uploade 
-const updateImage  = asyncHandler(async (req,res) => {
-    
+const updateUseDeatils = asyncHandler(async(req,res) => {
     try {
         const {id} = req.params ;
-        const {image} = req.body ;
+        const {firstname , lastname , email , number , password , image } = req.body ;
     
-        const user = await UserModel.findById(id);
-        if(!user) {
-            throw new ApiError( 400 ,"user not found")
+        const updateData = {
+            firstname: firstname,
+            lastname: lastname,
+            email: email,
+            number: number,
+            avatar : image
+        };
+        
+        // Hash the password if provided
+        if (password) {
+            const hashedPassword = await bcrypt.hash(password, 10); // Hash password manually
+            updateData.password = hashedPassword;
         }
-    
-        const update = await UserModel.findByIdAndUpdate( { _id: id} , { $set: { avatar : image } } , { new: true } );
-        res.status(200).json(new ApiResponse(200, update, "image updated successfully"));
+        
+        const update = await UserModel.findByIdAndUpdate(
+            { _id: id },
+            { $set: updateData },
+            { new: true } // Return the updated document
+        );
+        
+        res.status(200).json(new ApiResponse(200, update, "user details updated successfully"));
     } catch (error) {
         throw new ApiError( 500 , error?.message || "image not updated")
     }
 
-    
 })
 
-export { registerUser  , loginUser  , logoutUser , refreshAccessToken , verifyEmail , updateImage  } ;  // export all the functions  // export all the functions  // export
+export { registerUser  , loginUser  , logoutUser , refreshAccessToken , verifyEmail , updateUseDeatils } ;  // export all the functions  // export all the functions  // export
