@@ -143,7 +143,8 @@ const loginUser = asyncHandler(async (req, res) => {
     // find user data base 
     const loginUser = await UserModel.findById(user._id)
 
-    // set token in cookie and only
+    //user last login time update 
+    await UserModel.updateOne({_id : user._id} , {last_login_date : Date.now()} , {new : true})
     
 
     res.status(200)
@@ -246,4 +247,22 @@ const updateUseDeatils = asyncHandler(async(req,res) => {
 
 })
 
-export { registerUser  , loginUser  , logoutUser , refreshAccessToken , verifyEmail , updateUseDeatils } ;  // export all the functions  // export all the functions  // export
+
+const getSingleUser = asyncHandler(async (req,res) => {
+   try {
+     const {id} = req.params ;
+     if (!id) {
+        throw new ApiError(400, "id is required");
+     }
+     const user = await UserModel.findById(id);
+     if (!user) {
+        throw new ApiError(404, "user not found");
+     }
+     res.status(200).json(new ApiResponse(200, user, "user found successfully"));
+   } catch (error) {
+     throw new ApiError(500, error?.message || "user not found")
+   }
+
+})
+
+export { registerUser  , loginUser  , logoutUser , refreshAccessToken , verifyEmail , updateUseDeatils  , getSingleUser} ;  // export all the functions  // export all the functions  // export
