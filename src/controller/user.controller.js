@@ -131,13 +131,13 @@ const loginUser = asyncHandler(async (req, res) => {
     const user = await UserModel.findOne({email});
     // not found user 
     if (!user) {
-        throw new ApiError(404, "Invalid email ");
+        res.status(401).json(new ApiResponse(401, {} , "user not found"));
     }
 
     // match user send password === data base password  
     const matchPassword =  await user.isPasswordCorrect(password) // check password  // userModel isPasswordCorrect
     if (!matchPassword) {
-        throw new ApiError(404, "Invalid user credentials");
+        res.status(401).json(new ApiResponse(401 , {} , "Password not match"));
     }
 
     // crete accessToken, refreshToken
@@ -152,7 +152,7 @@ const loginUser = asyncHandler(async (req, res) => {
     res.status(200)
     .cookie("accessToken" , accessToken , options)
     .cookie("refreshToken" , refreshToken , options)
-    .json(new ApiResponse(200, { user: loginUser._id , accessToken , refreshToken} , "user login success full "));
+    .json(new ApiResponse(200, { id: loginUser._id , accessToken , refreshToken} , "user login success full "));
 })
 
 const logoutUser = asyncHandler(async (req,res) => {
