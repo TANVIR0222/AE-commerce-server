@@ -256,7 +256,7 @@ const getSingleUser = asyncHandler(async (req,res) => {
      if (!id) {
         throw new ApiError(400, "id is required");
      }
-     const user = await UserModel.findById(id);
+     const user = await UserModel.findById(id).select("-password -refresh_token -forgot_password_expiry -forgot_password_otp -last_login_date")
      if (!user) {
         throw new ApiError(404, "user not found");
      }
