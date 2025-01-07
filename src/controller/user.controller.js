@@ -256,7 +256,7 @@ const getSingleUser = asyncHandler(async (req,res) => {
      if (!id) {
         throw new ApiError(400, "id is required");
      }
-     const user = await UserModel.findById(id).select("-password -refresh_token -forgot_password_expiry -forgot_password_otp -last_login_date")
+     const user = await UserModel.findById({_id : id}).select("-password -refresh_token -forgot_password_expiry  -last_login_date")
      if (!user) {
         throw new ApiError(404, "user not found");
      }
@@ -275,7 +275,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
     }
     const user = await UserModel.findOne({email : email});
     if (!user) {
-        throw new ApiError(404, "user not found");
+        res.status(404).json(new ApiResponse(404,  "user not found"));
     }
 
     const otp = generateOTP()
@@ -300,7 +300,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
         }),
     });
     
-    res.status(200).json(new ApiResponse(200,  "check your email for otp"));
+    res.status(200).json(new ApiResponse(200, {} , "check your email for otp"));
 
 
 })
@@ -320,11 +320,11 @@ const verifyForgotPasswordOTP = asyncHandler(async (req, res)=>{
 
     //  Check if otp is valid
     if(user.forgot_password_expiry < new Date()){
-        return res.status(400).json(new ApiError(400, "otp is expired"));
+        return res.status(400).json(new ApiResponse(400, {} ,"otp is expired"));
     }
     
     if(user.forgot_password_otp !== otp){
-        return res.status(400).json(new ApiError(400, "invalid otp"));
+        return res.status(400).json(new ApiResponse(400, {} , "invalid otp"));
     }
 
     const updateOtp = await UserModel.findByIdAndUpdate({_id : user._id} ,{$set : 
@@ -361,7 +361,7 @@ const resetPassword = asyncHandler(async (req, res) => {
     user.password = password;
     await user.save();
 
-    res.status(200).json(new ApiResponse(200, "Password is updated successfully"));
+    res.status(200).json(new ApiResponse(200, {} , "Password is updated successfully"));
 
 
 })
