@@ -49,4 +49,32 @@ const getAddressSingleUser = asyncHandler(async (req,res) => {
     res.status(200).json(new ApiResponse(200 , userAddress , "Address fetched successfully"));
 })
 
-export { addAddress , getAddressSingleUser}
+
+//  update  address
+const updateAddress = asyncHandler(async (req,res) => {
+
+    //  get address id
+    const {id} = req.params;
+
+    //  get address details 
+    const {addressline,city,state,pincode,country,mobile} = req.body;
+
+    //  update address 
+    const address = await AddressModel.findByIdAndUpdate({_id : id},
+        {$set: 
+        {
+            addressline,
+            city,
+            state,
+            pincode,
+            country,
+            mobile,
+        }
+    },{new : true});
+
+    res.status(200).json(new ApiResponse(200 , address , "Address updated successfully"));
+
+})
+
+
+export { addAddress , getAddressSingleUser , updateAddress };  // export all functions 
