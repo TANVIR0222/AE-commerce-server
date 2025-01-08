@@ -157,18 +157,12 @@ const loginUser = asyncHandler(async (req, res) => {
 
 const logoutUser = asyncHandler(async (req,res) => {
 
-    //  get verifyJwt ->  req.user._id  // logout refresh_token 
-    await UserModel.findByIdAndUpdate(req.user._id ,
-        {
-            $set: {
-                refresh_token : undefined
-            }
-            
-        },
-        {
-            new : true
-        }
-    )
+    const userid = req.userId;
+
+    // removeRefreshToken form data base
+    await UserModel.findByIdAndUpdate(userid, {
+      refresh_token: "",
+    });
 
 
     res.status(200)
