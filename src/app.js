@@ -31,11 +31,13 @@ app.use(morgan())
 // import routes
 import userRoutes from './router/user.route.js';
 import imageRoutes from './router/uploadeAllImage.router.js';
+import addressRouter from './router/address.router.js';
 
 
 
 // route declaration 
 app.use('/api/v1/user' , userRoutes);
 app.use('/api/v1/all' , imageRoutes);
+app.use('/api/v1/address' , addressRouter);
 
 export {app}
