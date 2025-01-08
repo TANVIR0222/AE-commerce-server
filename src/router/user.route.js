@@ -13,7 +13,7 @@ router.route('/verify-forgot-password-otp').put(verifyForgotPasswordOTP)
 router.route('/reset-password').put(resetPassword)
 
 // secured routes
-router.route('/logout').post( verifyToken ,logoutUser)
+router.route('/logout').post(logoutUser)
 router.route('/refresh-token').post( refreshAccessToken )
 
 export default router;
