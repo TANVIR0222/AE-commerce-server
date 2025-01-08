@@ -76,5 +76,11 @@ const updateAddress = asyncHandler(async (req,res) => {
 
 })
 
+// delete address
+const deleteAddress = asyncHandler(async (req,res) => {
+    const {id} = req.params;
+    const addressDlete = await AddressModel.findByIdAndDelete(id);
+    res.status(200).json(new ApiResponse(200 , addressDlete , "Address deleted successfully"));
+})
 
-export { addAddress , getAddressSingleUser , updateAddress };  // export all functions 
+export { addAddress , getAddressSingleUser , updateAddress , deleteAddress};  // export all functions 
