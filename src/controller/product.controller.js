@@ -199,6 +199,21 @@ const updateProduct = asyncHandler( async(req,res) => {
 
 })
 
+// delete product
+const deleteProduct = asyncHandler( async(req,res) => {
+  const { id } = req.params;
 
+  if(!id) return res.status(400).json(new ApiResponse(400, null, 'Product ID is required'));
 
-export { addProduct  , getAllProduct , getSingleProductById , updateProduct}  ;  //export the function 
+  // Use direct deletion and ensure a response with lean()
+  const product = await ProductModel.findByIdAndDelete({_id : id}).lean();
+  //  product not found
+  if (!product) {
+    return res.status(404).json(new ApiResponse(404, null, 'Product not found'));
+  }
+
+  res.status(200).json(new ApiResponse(200, null , 'Product delete successfully'));
+
+})
+
+export { addProduct  , getAllProduct , getSingleProductById , updateProduct , deleteProduct}  ;  //export the function 
