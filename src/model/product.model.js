@@ -49,6 +49,14 @@ const productSchema = new mongoose.Schema({
     type: [String], // Array of sizes
     default: [],
   },
+  quantity: {
+    type: Number,
+    default: 1, // Default quantity is 1
+  },
+  new: {
+    type: Boolean,
+    default: false,
+  }
 }, {
   timestamps: true, // Automatically adds createdAt and updatedAt fields
 });
