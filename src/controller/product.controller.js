@@ -171,6 +171,34 @@ const getSingleProductById = asyncHandler( async(req,res) => {
 })
 
 
+// update product
+const updateProduct = asyncHandler( async(req,res) => {
+  const { id } = req.params;
+  const { name, description, price, oldPrice, image, category, subCategory, colors, rating, sizes} = req.body;
+
+  //  id not found 
+  if(!id) return res.status(400).json(new ApiResponse(400, null, 'Product ID is required'));
+
+  //  update product 
+  const product = await ProductModel.findByIdAndUpdate({_id : id}, 
+    { $set:  // Update the product document
+      { name, description, price, oldPrice, image, category, subCategory, colors, rating, sizes } 
+    }, 
+    { 
+      new:true, // Return the updated document
+      runValidators: true // Enforce schema validation rules
+    }
+  );
+
+    //  product not found
+  if (!product) return res.status(404).json(new ApiResponse(404, null, 'Product not found'));
+
+  //  
+  res.status(200).json(new ApiResponse(200, product, 'Product update successfully'));
 
 
-export { addProduct  , getAllProduct , getSingleProductById}  ;  //export the function 
+})
+
+
+
+export { addProduct  , getAllProduct , getSingleProductById , updateProduct}  ;  //export the function 
