@@ -32,6 +32,7 @@ app.use(morgan())
 import userRoutes from './router/user.route.js';
 import imageRoutes from './router/uploadeAllImage.router.js';
 import addressRouter from './router/address.router.js';
+import productRouter from './router/product.router.js';
 
 
 
@@ -39,5 +40,6 @@ import addressRouter from './router/address.router.js';
 app.use('/api/v1/user' , userRoutes);
 app.use('/api/v1/all' , imageRoutes);
 app.use('/api/v1/address' , addressRouter);
+app.use('/api/v1/product' , productRouter);
 
 export {app}

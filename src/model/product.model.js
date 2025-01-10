@@ -1,67 +1,59 @@
 import mongoose from "mongoose";
-
+// Schema definition
 const productSchema = new mongoose.Schema({
-    name : {
-        type : String,
+  name: {
+    type: String,
+    required: true,
+  },
+  description: {
+    type: String,
+    required: true,
+  },
+  price: {
+    type: Number,
+    required: true,
+  },
+  oldPrice: {
+    type: Number,
+    required: true,
+  },
+  discount: {
+    type: Number,
+    default: function () {
+      return Math.round(((this.oldPrice - this.price) / this.oldPrice) * 100);
     },
-    image : {
-        type : Array,
-        default : []
-    },
-    category : [
-        {
-            type : mongoose.Schema.ObjectId,
-            ref : 'Category'
-        }
-    ],
-    subCategory : [
-        {
-            type : mongoose.Schema.ObjectId,
-            ref : 'SubCategory'
-        }
-    ],
-    unit : {
-        type : String,
-        default : ""
-    },
-    stock : {
-        type : Number,
-        default : null
-    },
-    price : {
-        type : Number,
-        defualt : null
-    },
-    discount : {
-        type : Number,
-        default : null
-    },
-    description : {
-        type : String,
-        default : ""
-    },
-    more_details : {
-        type : Object,
-        default : {}
-    },
-    publish : {
-        type : Boolean,
-        default : true
-    }
-},{
-    timestamps : true
-})
+  },
+  image: {
+    type: [String], // Array of image URLs
+    required: true,
+  },
+  category: {
+    type: String,
+    required: true,
+  },
+  subCategory: {
+    type: String,
+    required: true,
+  },
+  colors: {
+    type: [String], // Array of color names
+    default: [],
+  },
+  rating: {
+    type: Number,
+    min: 0,
+    max: 5,
+    default: 4,
+  },
+  sizes: {
+    type: [String], // Array of sizes
+    default: [],
+  },
+}, {
+  timestamps: true, // Automatically adds createdAt and updatedAt fields
+});
 
-//create a text index
-productSchema.index({
-    name  : "text",
-    description : 'text'
-},{
-    name : 10,
-    description : 5
-})
+// Create model
+const ProductModel = mongoose.model('Product', productSchema);
 
-
-const ProductModel = mongoose.model('Product',productSchema)
-
-export default ProductModel
+export default ProductModel; // Export the model
