@@ -5,13 +5,9 @@ import asyncHandler from "../utils/asyncHandler.js";
 
 const addProduct = asyncHandler(async (req, res) => {
     const { name, description, price, oldPrice, image, category, subCategory, colors, rating, sizes} = req.body;
-
+  
     if (
-        [name, description, category, subCategory].some((field) => !field || field.trim() === "") || // Check strings
-        [price, oldPrice, rating].some((field) => field === undefined || field === null) ||          // Check numbers
-        !Array.isArray(image) || image.length === 0 ||                                               // Check image array
-        !Array.isArray(colors) || colors.length === 0 ||                                             // Check colors array
-        !Array.isArray(sizes) || sizes.length === 0                                                  // Check sizes array
+          ![name || description || price || oldPrice || image || category || subCategory || colors || rating || sizes]                                            // Check sizes array
       ) {
         return res.status(400).json(new ApiResponse(401, {}, 'Please fill in all fields'));
       }
@@ -108,7 +104,6 @@ const getAllProduct = asyncHandler(async (req, res) => {
 });
 
 
-
 // const getAllProduct = asyncHandler(async (req, res) => {
 //   const { page = 1, limit = 10, search = "", category, subCategory, colors, sizes, minPrice, maxPrice } = req.query;
 
@@ -166,6 +161,16 @@ const getAllProduct = asyncHandler(async (req, res) => {
 //   res.status(200).json(new ApiResponse(200, { products, total, page, limit }, 'Products retrieved successfully'));
 // });
 
+const getSingleProductById = asyncHandler( async(req,res) => {
+  const { id } = req.params;
+
+  const product = await ProductModel.findById(id).lean(); // Use lean() for better performance if read-only
+  if (!product) return res.status(404).json(new ApiResponse(404, null, 'Product not found'));
+  
+  res.status(200).json(new ApiResponse(200, product, 'Product retrieved successfully'));
+})
 
 
-export { addProduct  , getAllProduct}  ;  //export the function 
+
+
+export { addProduct  , getAllProduct , getSingleProductById}  ;  //export the function 
