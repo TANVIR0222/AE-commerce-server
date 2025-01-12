@@ -33,7 +33,7 @@ const addProduct = asyncHandler(async (req, res) => {
 
 
 const getAllProduct = asyncHandler(async (req, res) => {
-  const { page = 1, limit = 10, search = "", category, subCategory, colors, sizes, minPrice, maxPrice } = req.query;
+  const { page = 1, limit = 12, search = "", category, subCategory, colors, sizes, minPrice, maxPrice } = req.query;
   
   const matchConditions = [];
 
@@ -161,10 +161,14 @@ const getAllProduct = asyncHandler(async (req, res) => {
 //   res.status(200).json(new ApiResponse(200, { products, total, page, limit }, 'Products retrieved successfully'));
 // });
 
-const getSingleProductById = asyncHandler( async(req,res) => {
-  const { id } = req.params;
 
-  const product = await ProductModel.findById(id).lean(); // Use lean() for better performance if read-only
+
+// 
+const getMultipulProduct = asyncHandler( async(req,res) => {
+  const { id } = req.body;
+
+  const product = await ProductModel.find({_id : {$in : id}}).lean(); // Use lean() for better performance if read-only
+  
   if (!product) return res.status(404).json(new ApiResponse(404, null, 'Product not found'));
   
   res.status(200).json(new ApiResponse(200, product, 'Product retrieved successfully'));
@@ -216,4 +220,4 @@ const deleteProduct = asyncHandler( async(req,res) => {
 
 })
 
-export { addProduct  , getAllProduct , getSingleProductById , updateProduct , deleteProduct}  ;  //export the function 
+export { addProduct  , getAllProduct , getMultipulProduct , updateProduct , deleteProduct}  ;  //export the function 
